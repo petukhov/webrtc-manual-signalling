@@ -30,62 +30,65 @@
   <script>
     let pc;
     let dataChannel;
+    const $ = (id) => document.getElementById(id);
 
-    document.getElementById("copy-offer").addEventListener("click", () => {
-      const offer = document.getElementById("offer-content").innerText;
+    $("copy-offer").addEventListener("click", () => {
+      const offer = $("offer-content").innerText;
       navigator.clipboard.writeText(offer);
     });
 
-    document.getElementById("copy-answer").addEventListener("click", () => {
-      const answer = document.getElementById("answer-content").innerText;
+    $("copy-answer").addEventListener("click", () => {
+      const answer = $("answer-content").innerText;
       navigator.clipboard.writeText(answer);
     });
 
-    document
-      .getElementById("copy-icecandidate")
+    $("copy-icecandidate")
       .addEventListener("click", () => {
-        const icecandidate = document.getElementById(
+        const icecandidate = $(
           "icecandidate-content"
         ).innerText;
         navigator.clipboard.writeText(icecandidate);
       });
 
-    document
-      .getElementById("submit-offer-from-peer")
+    $("submit-offer-from-peer")
       .addEventListener("click", () => {
         const offer = JSON.parse(
-          document.getElementById("offer-from-peer").value
+          $("offer-from-peer").value
         );
+        $("submit-offer-from-peer").disabled = true;
+        $("offer-from-peer").disabled = true;
         handleOffer(offer);
       });
 
-    document
-      .getElementById("submit-answer-from-peer")
+    $("submit-answer-from-peer")
       .addEventListener("click", () => {
         const answer = JSON.parse(
-          document.getElementById("answer-from-peer").value
+          $("answer-from-peer").value
         );
+        $("submit-offer-from-peer").disabled = true;
+        $("offer-from-peer").disabled = true;
+        $("submit-answer-from-peer").disabled = true;
+        $("answer-from-peer").disabled = true;
         handleAnswer(answer);
       });
 
-    document
-      .getElementById("submit-icecandidate")
+    $("submit-icecandidate")
       .addEventListener("click", () => {
         const icecandidate = JSON.parse(
-          document.getElementById("icecandidate-from-peer").value
+          $("icecandidate-from-peer").value
         );
         handleIceCandidate(icecandidate);
       });
 
-    document.getElementById("send").addEventListener("click", () => {
-      const message = document.getElementById("message").value;
+    $("send").addEventListener("click", () => {
+      const message = $("message").value;
       dataChannel.send(message);
       printMessage("Me: " + message);
-      document.getElementById("message").value = "";
+      $("message").value = "";
     });
 
     function printMessage(message) {
-      const messages = document.getElementById("messages");
+      const messages = $("messages");
       messages.innerText += message + "\n";
     }
 
@@ -94,7 +97,6 @@
         iceServers: [
           {
             urls: [
-              "stun:stun1.l.google.com:19302",
               "stun:stun3.l.google.com:19302",
             ],
           },
@@ -134,7 +136,7 @@
         if (event.candidate) {
           console.log("on ice candidate");
           console.log(JSON.stringify(event.candidate));
-          document.getElementById("icecandidate-content").innerText =
+          $("icecandidate-content").innerText =
             JSON.stringify(event.candidate);
         }
       };
@@ -146,7 +148,7 @@
       };
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      document.getElementById("offer-content").innerText =
+      $("offer-content").innerText =
         JSON.stringify(offer);
     }
 
@@ -155,7 +157,7 @@
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        document.getElementById("answer-content").innerText =
+        $("answer-content").innerText =
           JSON.stringify(answer);
         printMessage("System: Successfully handled offer and created answer");
       } catch (error) {
