@@ -103,6 +103,25 @@
       pc = new RTCPeerConnection(servers);
       dataChannel = pc.createDataChannel("chat");
 
+      pc.onconnectionstatechange = () => {
+        printMessage(
+          "System: Connection state: " + pc.connectionState
+        );
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        printMessage(
+          "System: ICE connection state: " + pc.iceConnectionState
+        );
+      };
+
+      pc.onicecandidateerror = (event) => {
+        console.error("ICE candidate error", event);
+        printMessage(
+          "System: ICE candidate error: " + event.errorText
+        );
+      };
+
       dataChannel.onopen = () => {
         printMessage("System: Data channel is open");
       };
