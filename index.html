@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebRTC Demo</title>
+  </head>
+  <body>
+    <h4>Offer:</h4>
+    <input id="offer-from-peer" type="text" />
+    <button id="submit-offer-from-peer">Submit offer from peer</button>
+    <p id="offer-content"></p>
+    <button id="copy-offer">Copy</button>
+
+    <h4>Answer:</h4>
+    <input id="answer-from-peer" type="text" />
+    <button id="submit-answer-from-peer">Submit answer from peer</button>
+    <p id="answer-content"></p>
+    <button id="copy-answer">Copy</button>
+
+    <h4>ICE candidate:</h4>
+    <input id="icecandidate-from-peer" type="text" />
+    <button id="submit-icecandidate">Submit ICE candidate from peer</button>
+    <p id="icecandidate-content"></p>
+    <button id="copy-icecandidate">Copy</button>
+
+    <h4>Messages:</h4>
+    <input id="message" type="text" />
+    <button id="send">Send</button>
+    <p id="messages"></p>
+  </body>
+  <script>
+    let pc;
+    let dataChannel;
+
+    document.getElementById("copy-offer").addEventListener("click", () => {
+      const offer = document.getElementById("offer-content").innerText;
+      navigator.clipboard.writeText(offer);
+    });
+
+    document.getElementById("copy-answer").addEventListener("click", () => {
+      const answer = document.getElementById("answer-content").innerText;
+      navigator.clipboard.writeText(answer);
+    });
+
+    document
+      .getElementById("copy-icecandidate")
+      .addEventListener("click", () => {
+        const icecandidate = document.getElementById(
+          "icecandidate-content"
+        ).innerText;
+        navigator.clipboard.writeText(icecandidate);
+      });
+
+    document
+      .getElementById("submit-offer-from-peer")
+      .addEventListener("click", () => {
+        const offer = JSON.parse(
+          document.getElementById("offer-from-peer").value
+        );
+        handleOffer(offer);
+      });
+
+    document
+      .getElementById("submit-answer-from-peer")
+      .addEventListener("click", () => {
+        const answer = JSON.parse(
+          document.getElementById("answer-from-peer").value
+        );
+        handleAnswer(answer);
+      });
+
+    document
+      .getElementById("submit-icecandidate")
+      .addEventListener("click", () => {
+        const icecandidate = JSON.parse(
+          document.getElementById("icecandidate-from-peer").value
+        );
+        handleIceCandidate(icecandidate);
+      });
+
+    document.getElementById("send").addEventListener("click", () => {
+      const message = document.getElementById("message").value;
+      dataChannel.send(message);
+      printMessage("Me: " + message);
+      document.getElementById("message").value = "";
+    });
+
+    function printMessage(message) {
+      const messages = document.getElementById("messages");
+      messages.innerText += message + "\n";
+    }
+
+    async function main() {
+      const servers = {
+        iceServers: [
+          {
+            urls: [
+              "stun:stun1.l.google.com:19302",
+              "stun:stun3.l.google.com:19302",
+            ],
+          },
+        ],
+      };
+      pc = new RTCPeerConnection(servers);
+      dataChannel = pc.createDataChannel("chat");
+
+      dataChannel.onopen = () => {
+        printMessage("System: Data channel is open");
+      };
+
+      dataChannel.onclose = () => {
+        printMessage("System: Data channel is closed");
+      };
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          console.log("on ice candidate");
+          console.log(JSON.stringify(event.candidate));
+          document.getElementById("icecandidate-content").innerText =
+            JSON.stringify(event.candidate);
+        }
+      };
+      pc.ondatachannel = (event) => {
+        console.log("on data channel");
+        event.channel.onmessage = (event) => {
+          printMessage("Them: " + event.data);
+        };
+      };
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      document.getElementById("offer-content").innerText =
+        JSON.stringify(offer);
+    }
+
+    async function handleOffer(offer) {
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        document.getElementById("answer-content").innerText =
+          JSON.stringify(answer);
+        printMessage("System: Successfully handled offer and created answer");
+      } catch (error) {
+        printMessage(
+          "System: Failed to handle offer. Check dev console for error details."
+        );
+        console.error(error);
+      }
+    }
+
+    async function handleAnswer(answer) {
+      pc.setRemoteDescription(new RTCSessionDescription(answer))
+        .then(() => {
+          printMessage(
+            "System: Successfully handled answer and set as remote description."
+          );
+        })
+        .catch((error) => {
+          printMessage(
+            "System: Failed to set remote description. Check dev console for error details."
+          );
+          console.error(error);
+        });
+    }
+
+    async function handleIceCandidate(candidate) {
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        printMessage("System: Successfully added ICE candidate");
+      } catch (error) {
+        printMessage(
+          "System: Failed to add ICE candidate. Check dev console for error details."
+        );
+        console.error(error);
+      }
+    }
+
+    main();
+  </script>
+</html>
