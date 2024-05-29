@@ -32,6 +32,13 @@
     let dataChannel;
     const $ = (id) => document.getElementById(id);
 
+    const disableElements = () => {
+      $("submit-offer-from-peer").disabled = true;
+      $("offer-from-peer").disabled = true;
+      $("submit-answer-from-peer").disabled = true;
+      $("answer-from-peer").disabled = true;
+    };
+
     $("copy-offer").addEventListener("click", () => {
       const offer = $("offer-content").innerText;
       navigator.clipboard.writeText(offer);
@@ -42,43 +49,27 @@
       navigator.clipboard.writeText(answer);
     });
 
-    $("copy-icecandidate")
-      .addEventListener("click", () => {
-        const icecandidate = $(
-          "icecandidate-content"
-        ).innerText;
-        navigator.clipboard.writeText(icecandidate);
-      });
+    $("copy-icecandidate").addEventListener("click", () => {
+      const icecandidate = $("icecandidate-content").innerText;
+      navigator.clipboard.writeText(icecandidate);
+    });
 
-    $("submit-offer-from-peer")
-      .addEventListener("click", () => {
-        const offer = JSON.parse(
-          $("offer-from-peer").value
-        );
-        $("submit-offer-from-peer").disabled = true;
-        $("offer-from-peer").disabled = true;
-        handleOffer(offer);
-      });
+    $("submit-offer-from-peer").addEventListener("click", () => {
+      const offer = JSON.parse($("offer-from-peer").value);
+      disableElements();
+      handleOffer(offer);
+    });
 
-    $("submit-answer-from-peer")
-      .addEventListener("click", () => {
-        const answer = JSON.parse(
-          $("answer-from-peer").value
-        );
-        $("submit-offer-from-peer").disabled = true;
-        $("offer-from-peer").disabled = true;
-        $("submit-answer-from-peer").disabled = true;
-        $("answer-from-peer").disabled = true;
-        handleAnswer(answer);
-      });
+    $("submit-answer-from-peer").addEventListener("click", () => {
+      const answer = JSON.parse($("answer-from-peer").value);
+      disableElements();
+      handleAnswer(answer);
+    });
 
-    $("submit-icecandidate")
-      .addEventListener("click", () => {
-        const icecandidate = JSON.parse(
-          $("icecandidate-from-peer").value
-        );
-        handleIceCandidate(icecandidate);
-      });
+    $("submit-icecandidate").addEventListener("click", () => {
+      const icecandidate = JSON.parse($("icecandidate-from-peer").value);
+      handleIceCandidate(icecandidate);
+    });
 
     $("send").addEventListener("click", () => {
       const message = $("message").value;
@@ -96,9 +87,7 @@
       const servers = {
         iceServers: [
           {
-            urls: [
-              "stun:stun3.l.google.com:19302",
-            ],
+            urls: ["stun:stun3.l.google.com:19302"],
           },
         ],
       };
@@ -106,22 +95,16 @@
       dataChannel = pc.createDataChannel("chat");
 
       pc.onconnectionstatechange = () => {
-        printMessage(
-          "System: Connection state: " + pc.connectionState
-        );
+        printMessage("System: Connection state: " + pc.connectionState);
       };
 
       pc.oniceconnectionstatechange = () => {
-        printMessage(
-          "System: ICE connection state: " + pc.iceConnectionState
-        );
+        printMessage("System: ICE connection state: " + pc.iceConnectionState);
       };
 
       pc.onicecandidateerror = (event) => {
         console.error("ICE candidate error", event);
-        printMessage(
-          "System: ICE candidate error: " + event.errorText
-        );
+        printMessage("System: ICE candidate error: " + event.errorText);
       };
 
       dataChannel.onopen = () => {
@@ -136,8 +119,7 @@
         if (event.candidate) {
           console.log("on ice candidate");
           console.log(JSON.stringify(event.candidate));
-          $("icecandidate-content").innerText =
-            JSON.stringify(event.candidate);
+          $("icecandidate-content").innerText = JSON.stringify(event.candidate);
         }
       };
       pc.ondatachannel = (event) => {
@@ -148,8 +130,7 @@
       };
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      $("offer-content").innerText =
-        JSON.stringify(offer);
+      $("offer-content").innerText = JSON.stringify(offer);
     }
 
     async function handleOffer(offer) {
@@ -157,8 +138,7 @@
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        $("answer-content").innerText =
-          JSON.stringify(answer);
+        $("answer-content").innerText = JSON.stringify(answer);
         printMessage("System: Successfully handled offer and created answer");
       } catch (error) {
         printMessage(
