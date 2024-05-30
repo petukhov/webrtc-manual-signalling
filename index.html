@@ -4,25 +4,40 @@
     <title>WebRTC Demo</title>
   </head>
   <body>
-    <h4>Offer:</h4>
+    <p>
+      This is p2p chat without any server. Pure 2p2!!1! But the catch is that you need to share the information between you and your peer manually.. <br>
+      Basically the steps are: <br>
+      <ol>
+        <li>Peer A needs to generate the offer, then send it to peer B </li>
+        <li>Peer B submits the offer from peer A, then generates the answer and sends it back to peer A.</li>
+        <li>Peer A submits the answer from peer B. </li>
+        <li>Then both peers need to send their ice candidate information to each other, and submit it.</li>
+        <li>After that, you can start chatting in the Messages section below.</li>
+      </ol>
+      You can be either peer A or peer B. It doesn't matter. Just follow the steps. <br>
+    </p>
+    <h4>1. Offer:</h4>
+    <p>Copy and send this 'offer' to your peer through a different channel (e.g Whatsapp, Facebook). Or submit the 'offer' that you peer shared with you.</p>
     <input id="offer-from-peer" type="text" />
     <button id="submit-offer-from-peer">Submit offer from peer</button>
-    <p id="offer-content"></p>
+    <p style="background-color: lightblue;" id="offer-content"></p>
     <button id="copy-offer">Copy</button>
 
-    <h4>Answer:</h4>
+    <h4>2. Answer:</h4>
+    <p>After submitting the offer from your peer, the answer will be generated below, copy it and send it to your peer. If instead, your peer generated the answer, submit it below.</p>
     <input id="answer-from-peer" type="text" />
     <button id="submit-answer-from-peer">Submit answer from peer</button>
-    <p id="answer-content"></p>
+    <p style="background-color: lightblue;" id="answer-content"></p>
     <button id="copy-answer">Copy</button>
 
-    <h4>ICE candidate:</h4>
+    <h4>3. ICE candidate:</h4>
+    <p>After submitting the answer from your peer, you need to exchange ICE candidate information. Copy and send the ICE candidate information to your peer. When you peer sends you their ICE candidate information, submit it below.</p>
     <input id="icecandidate-from-peer" type="text" />
     <button id="submit-icecandidate">Submit ICE candidate from peer</button>
-    <p id="icecandidate-content"></p>
+    <p style="background-color: lightblue;" id="icecandidate-content"></p>
     <button id="copy-icecandidate">Copy</button>
 
-    <h4>Messages:</h4>
+    <h4>4. Messages:</h4>
     <input id="message" type="text" />
     <button id="send">Send</button>
     <p id="messages"></p>
